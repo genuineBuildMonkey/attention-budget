@@ -95,6 +95,19 @@ export default {
             },
             _checkEntry () {
                 let rslt = true
+                let url = this.current_entry.url.replace(/^.*:\/\//i, '')
+                url = url.split('/')[0]
+
+                for (var i = 0, len = this.entries.length; i < len; i++) {
+                    let v = this.entries[i]
+                    if (v.url === url) {
+                        this.url_error = url + ' already exists'
+                        rslt = false
+                        break
+                    }
+                }
+
+                console.log(rslt)
 
                 if (!isUrl(this.current_entry.url)) {
                     this.url_error = 'Invalid Url. Include "http://" or "https//"'
@@ -131,6 +144,7 @@ export default {
                 }
 
                 let url = this.current_entry.url.replace(/^.*:\/\//i, '')
+                url = url.split('/')[0]
                 let time = +this.current_entry.minutes
                 let store = {}
                 store[url] = {minutes: time, minutes_used: 0}
