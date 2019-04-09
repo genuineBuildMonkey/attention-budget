@@ -5,7 +5,7 @@
             <table class="large">
                 <tr>
                     <td>
-                        <input size="30" type="text" placeholder="https://timewaster.com" 
+                        <input size="30" type="text" ref="site" placeholder="https://timewaster.com" 
                             v-model="current_entry.url" @keyup="clearErrors()" @click="clearErrors()">
                     </td>
                     <td>
@@ -134,6 +134,7 @@ export default {
                 chrome.storage.local.set(store, () => {
                     this.entries.push({url: url, minutes: time})
                     this.current_entry = {'url': '', minutes: 0}
+                    this.$refs.site.focus()
                 })
             },
             updateEntry (entry) {
