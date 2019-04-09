@@ -34,11 +34,12 @@
         <br>
 
         <div>
+            <input type="button" @click="clearEntries()" value="Clear All">
             <table>
-                <tr v-for="(entry, i) in sortedEntries">
+                <tr v-for="entry in sortedEntries">
                     <td>{{ entry.url }}</td>
                     <td>
-                        <input size="1" v-model="entries[i].minutes" in v-on:change="updateEntry(entry)">
+                        <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
                     </td>
                     <td>
                     </td>
@@ -106,6 +107,11 @@ export default {
 
                 return rslt
             },
+            clearEntries () {
+                chrome.storage.local.clear(() => {
+                    this.entries.splice(0, this.entries.length)
+                })
+            },
             clearErrors () {
                 this.url_error = null
                 this.minutes_error = null
@@ -116,8 +122,6 @@ export default {
                 }
             },
             saveEntry () {
-                let that = this
-
                 if (!this._checkEntry()) {
                     return
                 }
@@ -128,8 +132,8 @@ export default {
                 store[url] = time
 
                 chrome.storage.local.set(store, () => {
-                    that.entries.push({url: url, minutes: that.current_entry.minutes})
-                    that.current_entry = {'url': '', minutes: 0}
+                    this.entries.push({url: url, minutes: time})
+                    this.current_entry = {'url': '', minutes: 0}
                 })
             },
             updateEntry (entry) {
