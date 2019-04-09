@@ -39,9 +39,10 @@
                 <tr v-for="entry in sortedEntries">
                     <td>{{ entry.url }}</td>
                     <td>
-                        <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
+                        <div>{{ entry.minutes_used }} minutes used of </div>
                     </td>
                     <td>
+                        <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
                     </td>
                 </tr>
             </table>
@@ -85,7 +86,10 @@ export default {
                     console.log(result)
 
                     Object.keys(result).forEach((k, v) => {
-                        this.entries.push({url: k, minutes: result[k]})
+                        let times = result[k]
+                        this.entries.push({url: k,
+                                           minutes: times.minutes,
+                                           minutes_used: times.minutes_used})
                     })
                 })
             },
@@ -129,10 +133,10 @@ export default {
                 let url = this.current_entry.url.replace(/^.*:\/\//i, '')
                 let time = +this.current_entry.minutes
                 let store = {}
-                store[url] = time
+                store[url] = {minutes: time, minutes_used: 0}
 
                 chrome.storage.local.set(store, () => {
-                    this.entries.push({url: url, minutes: time})
+                    this.entries.push({url: url, minutes: time, minutes_used: 0})
                     this.current_entry = {'url': '', minutes: 0}
                     this.$refs.site.focus()
                 })
