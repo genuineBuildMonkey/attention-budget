@@ -35,7 +35,7 @@
 
         <div>
             <table>
-                <tr v-for="(entry, i) in entries">
+                <tr v-for="(entry, i) in sortedEntries">
                     <td>{{ entry.url }}</td>
                     <td>
                         <input size="1" v-model="entries[i].minutes" in v-on:change="updateEntry(entry)">
@@ -51,6 +51,7 @@
 
 <script>
 /* eslint-disable indent */
+/* eslint-disable no-unused-vars */
 import isUrl from 'is-url'
 const isNumber = require('is-number')
 
@@ -61,10 +62,32 @@ export default {
             url_error: null,
             minutes_error: null
         }),
-        computed: { },
-        created () { },
-        mounted () { },
+        computed: {
+            sortedEntries () {
+                let out = this.entries.slice()
+                return out.sort((a, b) => {
+                    if (a.url < b.url) {
+                        return -1
+                    }
+                    return 1
+                })
+            }
+        },
+        created () {
+            this._getData()
+        },
+        mounted () {
+        },
         methods: {
+            _getData () {
+                chrome.storage.local.get((result) => {
+                    console.log(result)
+
+                    Object.keys(result).forEach((k, v) => {
+                        this.entries.push({url: k, minutes: result[k]})
+                    })
+                })
+            },
             _checkEntry () {
                 let rslt = true
 
@@ -88,17 +111,26 @@ export default {
                 this.minutes_error = null
             },
             resetIf0 () {
-                // reset value to null so user doesn't have to backspace through default.
                 if (this.current_entry.minutes === 0) {
                     this.current_entry.minutes = null
                 }
             },
             saveEntry () {
+                let that = this
+
                 if (!this._checkEntry()) {
                     return
                 }
-                this.entries.push(Object.assign(this.current_entry, {}))
-                this.current_entry = {'url': '', minutes: 0}
+
+                let url = this.current_entry.url.replace(/^.*:\/\//i, '')
+                let time = +this.current_entry.minutes
+                let store = {}
+                store[url] = time
+
+                chrome.storage.local.set(store, () => {
+                    that.entries.push({url: url, minutes: that.current_entry.minutes})
+                    that.current_entry = {'url': '', minutes: 0}
+                })
             },
             updateEntry (entry) {
                 console.log(entry)
