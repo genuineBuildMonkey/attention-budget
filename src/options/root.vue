@@ -34,17 +34,43 @@
         <br>
 
         <div>
-            <input type="button" @click="clearEntries()" value="Clear All">
+            <div>
+                <input type="button" @click="startClearEntries()" value="Clear All">
+            </div>
+            <br>
+            <div v-if="clear_entries_time > 0" 
+                class="small error">{{ displayFromMilliseconds(clear_entries_time) }} 
+                until clear all &nbsp;&nbsp;&nbsp;&nbsp;<a @click="cancelClearEntries()">cancel</a></div> 
+            <br>
+            <br>
             <table>
-                <tr v-for="entry in sortedEntries">
-                    <td>{{ entry.url }}</td>
-                    <td>
-                        <div>{{ entry.minutes_used }} minutes used of </div>
-                    </td>
-                    <td>
-                        <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
-                    </td>
-                </tr>
+                <template v-for="entry in sortedEntries">
+                    <tr>
+                        <td>{{ entry.url }}</td>
+                        <td>
+                            <div>{{ entry.minutes_used }} minutes used of </div>
+                        </td>
+                        <td>
+                            <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
+                        </td>
+                        <td>
+                            <a @click="updateEntry(entry)">update</a>
+                        </td>
+                        <td>
+                            <a @click="deleteEntry(entry)">delete</a>
+                        </td>
+                    </tr>
+                    <tr v-if="update_entry_times[entry.url]">
+                        <td colspan="3">
+                            <div class="small error">
+                                {{ displayFromMilliseconds(update_entry_times[entry.url]) }} until update or delete {{ entry.url }}
+                            </div>
+                        </td>
+                        <td colspan="1">
+                            <a @click="cancelUpdateEntry(entry.url)">cancel</a>
+                        </td>
+                    </tr>
+                </template>
             </table>
         </div>
 
@@ -54,15 +80,21 @@
 <script>
 /* eslint-disable indent */
 /* eslint-disable no-unused-vars */
+import Vue from 'vue'
 import isUrl from 'is-url'
 const isNumber = require('is-number')
+const moment = require('moment')
 
 export default {
     data: () => ({
             current_entry: {'url': '', minutes: 0},
             entries: [],
             url_error: null,
-            minutes_error: null
+            minutes_error: null,
+            clear_entries_time: 0,
+            entriesTimer: null,
+            update_entry_times: {},
+            updateTimers: {}
         }),
         computed: {
             sortedEntries () {
@@ -83,8 +115,6 @@ export default {
         methods: {
             _getData () {
                 chrome.storage.local.get((result) => {
-                    console.log(result)
-
                     Object.keys(result).forEach((k, v) => {
                         let times = result[k]
                         this.entries.push({url: k,
@@ -107,8 +137,6 @@ export default {
                     }
                 }
 
-                console.log(rslt)
-
                 if (!isUrl(this.current_entry.url)) {
                     this.url_error = 'Invalid Url. Include "http://" or "https//"'
                     rslt = false
@@ -124,10 +152,39 @@ export default {
 
                 return rslt
             },
-            clearEntries () {
+            _clearEntries () {
                 chrome.storage.local.clear(() => {
                     this.entries.splice(0, this.entries.length)
                 })
+            },
+            _updateEntry (entry) {
+                chrome.storage.local.get(entry.url, (result) => {
+                    if (result[entry.url]) {
+                       let updated = {}
+
+                       updated[entry.url] = {minutes: entry.minutes, minutes_used: entry.minutes_used}
+
+                       chrome.storage.local.set(updated, (r) => {
+                           clearInterval(this.updateTimers[entry.url])
+                           Vue.delete(this.update_entry_times, entry.url)
+                       })
+                    }
+                })
+            },
+            _deleteEntry (entry) {
+                chrome.storage.local.remove(entry.url, (result) => {
+                    clearInterval(this.updateTimers[entry.url])
+                    Vue.delete(this.update_entry_times, entry.url)
+                    this.entries.forEach((e, i) => {
+                        if (e.url === entry.url) {
+                            this.entries.splice(i, 1)
+                        }
+                    })
+                })
+            },
+            displayFromMilliseconds (v) {
+                let t = moment.duration(v)
+                return t.asSeconds() + ' seconds'
             },
             clearErrors () {
                 this.url_error = null
@@ -156,7 +213,71 @@ export default {
                 })
             },
             updateEntry (entry) {
-                console.log(entry)
+                if (this.update_entry_times[entry.url]) {
+                    return
+                }
+
+                if (this.updateTimers[entry.url]) {
+                    clearInterval(this.updateTimers[entry.url])
+                }
+
+                Vue.set(this.update_entry_times, entry.url, 10000)
+
+                this.updateTimers[entry.url] = setInterval(() => {
+                    this.update_entry_times[entry.url] -= 1000
+                    if (this.update_entry_times[entry.url] <= 0) {
+                        entry.action = 'update'
+                        this._updateEntry(entry)
+                    }
+                }, 1000)
+            },
+            deleteEntry (entry) {
+                if (this.update_entry_times[entry.url]) {
+                    return
+                }
+
+                if (this.updateTimers[entry.url]) {
+                    clearInterval(this.updateTimers[entry.url])
+                }
+
+                Vue.set(this.update_entry_times, entry.url, 10000)
+
+                this.updateTimers[entry.url] = setInterval(() => {
+                    this.update_entry_times[entry.url] -= 1000
+                    if (this.update_entry_times[entry.url] <= 0) {
+                        entry.action = 'delete'
+                        this._deleteEntry(entry)
+                    }
+                }, 1000)
+            },
+            cancelUpdateEntry (url) {
+                clearInterval(this.updateTimers[url])
+                Vue.delete(this.update_entry_times, url)
+            },
+            startClearEntries () {
+                if (this.clear_entries_time > 0) {
+                    return
+                }
+
+                if (this.entriesTimer) {
+                    clearInterval(this.entriesTimer)
+                }
+
+                // this.clear_entries_time = 180000
+                this.clear_entries_time = 10000
+
+                this.entriesTimer = setInterval(() => {
+                    this.clear_entries_time -= 1000
+                    if (this.clear_entries_time <= 0) {
+                        clearInterval(this.entriesTimer)
+                        this._clearEntries()
+                        this.clear_entries_time = 0
+                    }
+                }, 1000)
+            },
+            cancelClearEntries () {
+                clearInterval(this.entriesTimer)
+                this.clear_entries_time = 0
             }
         }
     }
@@ -604,6 +725,9 @@ label > input:disabled:-webkit-any([type='checkbox'], [type='radio']) ~ span {
 }
 
 /* custom overrides */
+a:hover {
+    cursor: pointer;
+}
 .error {
     color: #CC1E1E; 
     padding-left: .5em;
