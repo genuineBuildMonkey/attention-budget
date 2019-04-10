@@ -162,7 +162,11 @@ export default {
                     if (result[entry.url]) {
                        let updated = {}
 
-                       updated[entry.url] = {minutes: entry.minutes, minutes_used: entry.minutes_used}
+                       updated[entry.url] = {
+                                              minutes: entry.minutes,
+                                              minutes_used: entry.minutes_used,
+                                              last_log_date: result[entry.url].last_log_date
+                                              }
 
                        chrome.storage.local.set(updated, (r) => {
                            clearInterval(this.updateTimers[entry.url])
@@ -204,7 +208,8 @@ export default {
                 url = url.split('/')[0]
                 let time = +this.current_entry.minutes
                 let store = {}
-                store[url] = {minutes: time, minutes_used: 0}
+                let lastLogDate = moment().format('YYYY-MM-DD')
+                store[url] = {minutes: time, minutes_used: 0, last_log_date: lastLogDate}
 
                 chrome.storage.local.set(store, () => {
                     this.entries.push({url: url, minutes: time, minutes_used: 0})

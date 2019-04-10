@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 console.log('background !')
 
 chrome.browserAction.setPopup({ popup: '' })
