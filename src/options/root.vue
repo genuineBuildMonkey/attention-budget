@@ -48,7 +48,7 @@
                     <tr>
                         <td>{{ entry.url }}</td>
                         <td>
-                            <div>{{ entry.minutes_used }} minutes used of </div>
+                            <div>{{ Math.round(entry.minutes_used * 100) / 100 }} minutes used of </div>
                         </td>
                         <td>
                             <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
