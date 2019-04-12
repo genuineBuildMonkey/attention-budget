@@ -43,5 +43,5 @@ module.exports = {
         all_frames: true
     }],
     content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
-    web_accessible_resources: [ 'panel.html', 'js/content.js' ]
+    web_accessible_resources: [ 'panel.html', 'js/content.js', 'icons/img48.png']
 }

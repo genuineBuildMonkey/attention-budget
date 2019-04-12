@@ -26,9 +26,46 @@ const moment = require('moment');
             const checkAndBlock = () => {
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
                     let overlay = document.createElement('div')
-                    let style = 'position:fixed; top:0; background-color:black; height:100vh; width:100vw'
+
+                    let style = 'position:fixed; top:0; height:100vh; width:100vw;'
+                    style += 'display:flex; left:0; right:0;'
+                    style += 'align-items:center; justify-content:center;'
+
+                    style += 'background:'
+                    style += 'linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,'
+                    style += 'linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px,'
+                    style += 'linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px,'
+                    style += 'linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,'
+                    style += 'linear-gradient(90deg, #1b1b1b 10px, transparent 10px),'
+                    style += 'linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);'
+                    style += 'background-color: #131313; background-size: 20px 20px;'
+
                     overlay.setAttribute('style', style)
                     overlay.id = 'ab-page-block'
+
+                    let message = document.createElement('h1')
+                    message.style.color = '#fff'
+                    message.style.textTransform = 'uppercase'
+                    message.innerHTML = 'Why did you install this extension?'
+
+                    overlay.append(message)
+
+                    let iconContainer = document.createElement('div')
+                    iconContainer.style.textAlign = 'right'
+                    iconContainer.style.marginTop = '4em'
+                    iconContainer.style.padding = '.5em'
+                    let icon = document.createElement('img')
+                    icon.setAttribute('src', chrome.extension.getURL('icons/img48.png'))
+
+                    iconContainer.append(icon)
+                    overlay.append(iconContainer)
+
+                    //let message = document.createElement('h1')
+                    //message.style.color = '#fff'
+                    //message.style.textTransform = 'uppercase'
+                    //message.innerHTML = 'Why did you install this extension?'
+
+                    //overlay.append(message)
 
                     document.body.appendChild(overlay)
 
@@ -52,7 +89,6 @@ const moment = require('moment');
             //update date and minutes used
             const resetTime = (newLogDate) => {
                 let updated = {}
-                //let newLogDate = moment().format('YYYY-MM-DD')
                 updated[url] = {minutes: storedEntry[url].minutes, minutes_used: 0, last_log_date: newLogDate}
                 chrome.storage.local.set(updated, (r) => {
                     // restart monitor after updating date and available time
