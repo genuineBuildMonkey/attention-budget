@@ -6,6 +6,7 @@
 //document.body.appendChild(script)
 //console.log(document.body)
 
+import messagePicker from './messages.js'
 const moment = require('moment');
 
 ((document) => {
@@ -24,6 +25,7 @@ const moment = require('moment');
             var intervalTimer
 
             const checkAndBlock = () => {
+                console.log('checking')
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
                     let overlay = document.createElement('div')
 
@@ -46,7 +48,7 @@ const moment = require('moment');
                     let message = document.createElement('h1')
                     message.style.color = '#fff'
                     message.style.textTransform = 'uppercase'
-                    message.innerHTML = 'Why did you install this extension?'
+                    message.innerHTML = messagePicker.randomMessage()
 
                     overlay.append(message)
 
@@ -59,13 +61,6 @@ const moment = require('moment');
 
                     iconContainer.append(icon)
                     overlay.append(iconContainer)
-
-                    //let message = document.createElement('h1')
-                    //message.style.color = '#fff'
-                    //message.style.textTransform = 'uppercase'
-                    //message.innerHTML = 'Why did you install this extension?'
-
-                    //overlay.append(message)
 
                     document.body.appendChild(overlay)
 
@@ -80,10 +75,6 @@ const moment = require('moment');
                     return true
                 }
                 return false
-            }
-
-            if (checkAndBlock()) {
-                return
             }
 
             //update date and minutes used
