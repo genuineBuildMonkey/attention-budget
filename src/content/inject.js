@@ -29,11 +29,16 @@ const moment = require('moment');
 
             const checkAndBlock = () => {
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
+                    let zIndex = Math.max.apply(null, Array.prototype.map.call(document.querySelectorAll('*'), function (el) {
+                          return +el.style.zIndex
+                    })) + 10
+
                     let overlay = document.createElement('div')
 
                     let style = 'position:fixed; top:0; height:100vh; width:100vw;'
                     style += 'display:flex; left:0; right:0;'
                     style += 'align-items:center; justify-content:center;'
+                    style += 'padding-left:1em; padding-right:1em;'
 
                     style += 'background:'
                     style += 'linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,'
@@ -43,12 +48,16 @@ const moment = require('moment');
                     style += 'linear-gradient(90deg, #1b1b1b 10px, transparent 10px),'
                     style += 'linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);'
                     style += 'background-color: #131313; background-size: 20px 20px;'
+                    style += 'z-index:' + zIndex + ';'
 
                     overlay.setAttribute('style', style)
                     overlay.id = 'ab-page-block'
 
                     let message = document.createElement('h1')
                     message.style.color = '#fff'
+                    message.style.fontSize = '20pt'
+                    message.style.fontFamily = 'Sans-Serif'
+                    message.style.fontWeight = 'normal'
                     message.style.textTransform = 'uppercase'
                     message.innerHTML = messagePicker.randomMessage()
 
@@ -57,6 +66,7 @@ const moment = require('moment');
                     let iconContainer = document.createElement('div')
                     iconContainer.style.textAlign = 'right'
                     iconContainer.style.marginTop = '4em'
+                    iconContainer.style.marginRight = '4em'
                     iconContainer.style.padding = '.5em'
                     let icon = document.createElement('img')
                     icon.setAttribute('src', chrome.extension.getURL('icons/img48.png'))
