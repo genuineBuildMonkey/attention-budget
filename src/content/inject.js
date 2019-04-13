@@ -1,19 +1,16 @@
+import messagePicker from './messages.js'
+const moment = require('moment');
+
 //var content = chrome.extension.getURL('js/content.js')
-//var storage = chrome.storage.local
 //var script = document.createElement('script')
 //script.setAttribute('type', 'text/javascript')
 //script.setAttribute('src', content)
-//document.body.appendChild(script)
-//console.log(document.body)
-
-import messagePicker from './messages.js'
-const moment = require('moment');
+//document.body.appendChild(script);
 
 ((document) => {
     let url = window.location.href
     url = url.replace(/^.*:\/\//i, '')
     url = url.split('/')[0]
-    console.log(url)
 
     const monitor = () => {
         chrome.storage.local.get(url, (storedEntry) => {
@@ -22,10 +19,22 @@ const moment = require('moment');
                 return
             }
 
+            let currentDate = moment().format('YYYY-MM-DD')
+            console.log(currentDate, storedEntry[url].last_log_date)
+            if (currentDate !== storedEntry[url].last_log_date) {
+                //reset available time
+                let updated = {}
+                updated[url] = {minutes: storedEntry[url].minutes, minutes_used: 0, last_log_date: currentDate}
+                chrome.storage.local.set(updated, (r) => {
+                    // restart monitor after updating date and available time
+                    monitor()
+                })
+                return
+            }
+
             var intervalTimer
 
             const checkAndBlock = () => {
-                console.log('checking')
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
                     let overlay = document.createElement('div')
 
@@ -77,37 +86,14 @@ const moment = require('moment');
                 return false
             }
 
-            //update date and minutes used
-            const resetTime = (newLogDate) => {
-                let updated = {}
-                updated[url] = {minutes: storedEntry[url].minutes, minutes_used: 0, last_log_date: newLogDate}
-                chrome.storage.local.set(updated, (r) => {
-                    // restart monitor after updating date and available time
-                    monitor()
-                })
+            if (checkAndBlock()) {
+                return false
             }
 
             const startMonitor = () => {
-                console.log('monitoring')
-
-                let currentDate = moment().format('YYYY-MM-DD')
-                if (currentDate > storedEntry[url].last_log_date) {
-                    return resetTime(currentDate)
-                }
-                try {
-                    clearInterval(intervalTimer)
-                } catch (e) {
-                }
-
                 intervalTimer = setInterval(() => {
                     //6 seconds on to used time
                     storedEntry[url].minutes_used += 0.1
-
-                    if (checkAndBlock()) {
-                        //over time limit
-                        clearInterval(intervalTimer)
-                        return
-                    }
 
                     let updated = {}
 
@@ -118,21 +104,23 @@ const moment = require('moment');
 
                     try {
                         chrome.storage.local.set(updated, (r) => {
-                            console.log('updated', updated)
                         })
                     } catch (e) {
                         console.log(e)
+                    }
+
+                    if (checkAndBlock()) {
+                        //over time limit
+                        clearInterval(intervalTimer)
                     }
                 }, 6000)
             }
 
             window.addEventListener('focus', () => {
-                console.log('start')
                 startMonitor()
             })
 
             window.addEventListener('blur', () => {
-                console.log('stop')
                 clearInterval(intervalTimer)
             })
 
