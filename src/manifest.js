@@ -24,7 +24,7 @@ module.exports = {
     ],
     browser_action: {
         default_title: '',
-        default_popup: 'pages/popup.html'
+        default_popup: 'pages/background.html'
     },
     background: {
         persistent: false,

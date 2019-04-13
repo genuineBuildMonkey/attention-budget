@@ -9,7 +9,8 @@
         created () { },
         mounted () { },
         methods: {
-            tab () { }
+            tab () {
+            }
         }
     }
 </script>
