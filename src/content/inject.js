@@ -1,12 +1,6 @@
 import messagePicker from './messages.js'
 const moment = require('moment');
 
-//var content = chrome.extension.getURL('js/content.js')
-//var script = document.createElement('script')
-//script.setAttribute('type', 'text/javascript')
-//script.setAttribute('src', content)
-//document.body.appendChild(script);
-
 ((document) => {
     let url = window.location.href
     url = url.replace(/^.*:\/\//i, '')
@@ -20,7 +14,6 @@ const moment = require('moment');
             }
 
             let currentDate = moment().format('YYYY-MM-DD')
-            console.log(currentDate, storedEntry[url].last_log_date)
             if (currentDate !== storedEntry[url].last_log_date) {
                 //reset available time
                 let updated = {}
@@ -94,6 +87,10 @@ const moment = require('moment');
                 intervalTimer = setInterval(() => {
                     //6 seconds on to used time
                     storedEntry[url].minutes_used += 0.1
+
+                    if (storedEntry[url].minutes_used > storedEntry[url].minutes) {
+                        storedEntry[url].minutes_used = storedEntry[url].minutes
+                    }
 
                     let updated = {}
 
