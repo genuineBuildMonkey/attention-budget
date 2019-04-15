@@ -23,8 +23,8 @@ module.exports = {
         'notifications',
     ],
     browser_action: {
-        default_title: '',
-        default_popup: 'pages/background.html'
+        default_title: 'Attention Budget',
+        default_popup: 'pages/options.html'
     },
     background: {
         persistent: true,
