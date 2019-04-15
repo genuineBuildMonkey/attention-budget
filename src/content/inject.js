@@ -6,6 +6,22 @@ const moment = require('moment');
     url = url.replace(/^.*:\/\//i, '')
     url = url.split('/')[0]
 
+    let currentDate = moment().format('YYYY-MM-DD')
+
+    chrome.storage.local.get((allEntries) => {
+        console.log(allEntries)
+        Object.keys(allEntries).forEach((k) => {
+            let val = allEntries[k]
+            if (currentDate !== val.last_log_date) {
+                let updated = {}
+                updated[k] = {minutes: val.minutes, minutes_used: 0, last_log_date: currentDate}
+                chrome.storage.local.set(updated, (r) => {
+                    console.log('updating', k)
+                })
+            }
+        })
+    })
+
     const monitor = () => {
         chrome.storage.local.get(url, (storedEntry) => {
             if (!storedEntry[url]) {
@@ -31,7 +47,7 @@ const moment = require('moment');
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
                     let zIndex = Math.max.apply(null, Array.prototype.map.call(document.querySelectorAll('*'), function (el) {
                           return +el.style.zIndex
-                    })) + 10
+                    })) + 100
 
                     let overlay = document.createElement('div')
 
@@ -70,11 +86,17 @@ const moment = require('moment');
                     iconContainer.style.padding = '.5em'
                     let icon = document.createElement('img')
                     icon.setAttribute('src', chrome.extension.getURL('icons/img48.png'))
+                    iconContainer.classList.add('ab-cover-el')
 
                     iconContainer.append(icon)
                     overlay.append(iconContainer)
 
                     document.body.appendChild(overlay)
+
+                    let css = 'div:not(.ab-cover-el):not(#ab-page-block) {opacity: 0 !important}'
+                    let topstyle = document.createElement('style')
+                    topstyle.innerText = css
+                    document.head.appendChild(topstyle)
 
                     let checkBlockRemove = setInterval(() => {
                         //put back block if was removed
