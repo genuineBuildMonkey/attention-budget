@@ -9,7 +9,6 @@ const moment = require('moment');
     let currentDate = moment().format('YYYY-MM-DD')
 
     chrome.storage.local.get((allEntries) => {
-        console.log(allEntries)
         Object.keys(allEntries).forEach((k) => {
             let val = allEntries[k]
             if (currentDate !== val.last_log_date) {
@@ -41,7 +40,7 @@ const moment = require('moment');
                 return
             }
 
-            var intervalTimer
+            var intervalTimer, checkBlockRemove
 
             const checkAndBlock = () => {
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
@@ -98,7 +97,7 @@ const moment = require('moment');
                     topstyle.innerText = css
                     document.head.appendChild(topstyle)
 
-                    let checkBlockRemove = setInterval(() => {
+                    checkBlockRemove = setInterval(() => {
                         //put back block if was removed
                         if (!document.getElementById('ab-page-block')) {
                             clearInterval(checkBlockRemove)
@@ -150,6 +149,12 @@ const moment = require('moment');
             })
 
             window.addEventListener('blur', () => {
+                clearInterval(checkBlockRemove)
+                clearInterval(intervalTimer)
+            })
+
+            window.onbeforeunload(() => {
+                clearInterval(checkBlockRemove)
                 clearInterval(intervalTimer)
             })
 
