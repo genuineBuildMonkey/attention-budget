@@ -1,79 +1,84 @@
 <template>
-    <div style="padding: 2em;">
-
-        <div class="large">
-            <table class="large">
-                <tr>
-                    <td>
-                        <input size="30" type="text" ref="site" placeholder="https://timewaster.com" 
-                            v-model="current_entry.url" @keyup="clearErrors()" @click="clearErrors()">
-                    </td>
-                    <td>
-                        <input size="1" v-model="current_entry.minutes" 
-                            @keyup="clearErrors()" @click="resetIf0">
-                        <label>Minutes Per Day</label>
-                    </td>
-                    <td>
-                        <input type="button" @click="saveEntry" value="Add Site Budget">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div v-if="url_error" class="small error">{{ this.url_error }}</div> 
-                    </td>
-                    <td>
-                        <div v-if="minutes_error" class="small error">{{ this.minutes_error }}</div> 
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-            </table>
+    <div>
+        <div class="heading">
+            <img src="/icons/img48.png"/>
+            <span>url options</span>
         </div>
-
-        <br>
-        <br>
-
-        <div>
-            <div>
-                <input type="button" @click="startClearEntries()" value="Clear All">
-            </div>
-            <br>
-            <div v-if="clear_entries_time > 0" 
-                class="small error">{{ displayFromMilliseconds(clear_entries_time) }} 
-                until clear all &nbsp;&nbsp;&nbsp;&nbsp;<a @click="cancelClearEntries()">cancel</a></div> 
-            <br>
-            <br>
-            <table>
-                <template v-for="entry in sortedEntries">
+        <div style="padding: 2em;">
+            <div class="large">
+                <table class="large">
                     <tr>
-                        <td>{{ entry.url }}</td>
                         <td>
-                            <div>{{ Math.round(entry.minutes_used * 100) / 100 }} minutes used of </div>
+                            <input size="30" type="text" ref="site" placeholder="https://timewaster.com" 
+                                v-model="current_entry.url" @keyup="clearErrors()" @click="clearErrors()">
                         </td>
                         <td>
-                            <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
+                            <input size="1" v-model="current_entry.minutes" 
+                                @keyup="clearErrors()" @click="resetIf0">
+                            <label>Minutes Per Day</label>
                         </td>
                         <td>
-                            <a @click="updateEntry(entry)">update</a>
-                        </td>
-                        <td>
-                            <a @click="deleteEntry(entry)">delete</a>
+                            <button type="submit" class="primary" @click="saveEntry">
+                                Add Site Budget
+                            </button>
                         </td>
                     </tr>
-                    <tr v-if="update_entry_times[entry.url]">
-                        <td colspan="3">
-                            <div class="small error">
-                                {{ displayFromMilliseconds(update_entry_times[entry.url]) }} until update or delete {{ entry.url }}
-                            </div>
+                    <tr>
+                        <td>
+                            <div v-if="url_error" class="small error">{{ this.url_error }}</div> 
                         </td>
-                        <td colspan="1">
-                            <a @click="cancelUpdateEntry(entry.url)">cancel</a>
+                        <td>
+                            <div v-if="minutes_error" class="small error">{{ this.minutes_error }}</div> 
+                        </td>
+                        <td>
                         </td>
                     </tr>
-                </template>
-            </table>
-        </div>
+                </table>
+            </div>
 
+            <br>
+            <br>
+
+            <div>
+                <div v-if="entries.length > 0">
+                    <button type="delete" class="secondary" @click="startClearEntries()">Clear All</button>
+                </div>
+                <br>
+                <div v-if="clear_entries_time > 0 && entries.length > 0" 
+                    class="small error">{{ displayFromMilliseconds(clear_entries_time) }} 
+                    until clear all &nbsp;&nbsp;&nbsp;&nbsp;<a @click="cancelClearEntries()">cancel</a></div> 
+                <br>
+                <table class="medium">
+                    <template v-for="entry in sortedEntries">
+                        <tr>
+                            <td>{{ entry.url }}</td>
+                            <td>
+                                <div>{{ Math.round(entry.minutes_used * 100) / 100 }} minutes used of </div>
+                            </td>
+                            <td>
+                                <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
+                            </td>
+                            <td>
+                                <a @click="updateEntry(entry)">update</a>
+                            </td>
+                            <td>
+                                <a @click="deleteEntry(entry)">delete</a>
+                            </td>
+                        </tr>
+                        <tr v-if="update_entry_times[entry.url]">
+                            <td colspan="3">
+                                <div class="small error">
+                                    {{ displayFromMilliseconds(update_entry_times[entry.url]) }} until update or delete {{ entry.url }}
+                                </div>
+                            </td>
+                            <td colspan="1">
+                                <a @click="cancelUpdateEntry(entry.url)">cancel</a>
+                            </td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -310,10 +315,10 @@ html.loading * {
 }
 
 body {
+  /* background-color: #F8F9FA; */
   cursor: default;
   margin: 0;
   font-family:'Segoe UI', Tahoma, sans-serif;
-  font-size: 75%;
   color:rgb(48, 57, 66)
 }
 
@@ -407,6 +412,9 @@ hr{
 .small{
     font-size:11px
 }
+.medium{
+    font-size:13px
+}
 .large{
     font-size:18px
 }
@@ -428,46 +436,6 @@ hr{
 
 /* Default state **************************************************************/
 
-:-webkit-any(button,
-             input[type='button'],
-             input[type='reset'],
-             input[type='submit']):not(.custom-appearance):not(.link-button),
-select,
-input[type='checkbox'],
-input[type='radio'] {
-  -webkit-appearance: none;
-  -webkit-user-select: none;
-  background-image: -webkit-linear-gradient(#ededed, #ededed 38%, #dedede);
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  border-radius: 2px;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08),
-      inset 0 1px 2px rgba(255, 255, 255, 0.75);
-  color: #444;
-  font: inherit;
-  margin: 0 1px 0 0;
-  text-shadow: 0 1px 0 rgb(240, 240, 240);
-}
-
-:-webkit-any(button,
-             input[type='button'],
-             input[type='reset'],
-             input[type='submit']):not(.custom-appearance):not(.link-button),
-select {
-  min-height: 2em;
-  min-width: 4em;
-/* The following platform-specific rule is necessary to get adjacent
-   * buttons, text inputs, and so forth to align on their borders while also
-   * aligning on the text's baselines. */
-  padding-bottom: 1px;
-}
-
-:-webkit-any(button,
-             input[type='button'],
-             input[type='reset'],
-             input[type='submit']):not(.custom-appearance):not(.link-button) {
-  -webkit-padding-end: 10px;
-  -webkit-padding-start: 10px;
-}
 
 select {
   -webkit-appearance: none;
@@ -561,28 +529,6 @@ input[type='radio']:checked::before {
 }
 
 /* Hover **********************************************************************/
-
-:enabled:hover:-webkit-any(
-    select,
-    input[type='checkbox'],
-    input[type='radio'],
-    :-webkit-any(
-        button,
-        input[type='button'],
-        input[type='reset'],
-        input[type='submit']):not(.custom-appearance):not(.link-button)) {
-  background-image: -webkit-linear-gradient(#f0f0f0, #f0f0f0 38%, #e0e0e0);
-  border-color: rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12),
-      inset 0 1px 2px rgba(255, 255, 255, 0.95);
-  color: black;
-}
-
-:enabled:hover:-webkit-any(select) {
-  /* OVERRIDE */
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAICAYAAAAbQcSUAAAAaUlEQVQoz2P4//8/A7UwdkEGhiggTsODo4g2LBEImJmZvwE1/UfHIHGQPNGGAbHCggULFrKxsf1ENgjEB4mD5EnxJoaByAZB5Yk3DNlAPj6+L8gGkWUYzMC3b982IRtEtmFQjaxYxDAwAGi4TwMYKNLfAAAAAElFTkSuQmCC'),
-      -webkit-linear-gradient(#f0f0f0, #f0f0f0 38%, #e0e0e0);
-}
 
 /* Active *********************************************************************/
 
@@ -730,6 +676,45 @@ label > input:disabled:-webkit-any([type='checkbox'], [type='radio']) ~ span {
 }
 
 /* custom overrides */
+
+button {
+    border: none;
+    border-radius: 4px;
+    font-family: 'Roboto', arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    height: 32px;
+    padding: 0 16px;
+    transition-duration: 200ms;
+    transition-property: background-color, color, box-shadow, border;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+button.primary {
+    background-color: rgb(26, 115, 232);
+    color: white;
+}
+
+button.secondary {
+    background-color: white;
+    border: 1px solid rgb(218, 220, 224);
+    color: rgb(26, 115, 232);
+}
+
+button.primary:hover:not(:disabled) {
+    background-color: rgb(41, 123, 231);
+    box-shadow: 0 1px 2px 0 rgba(66, 133, 244, 0.3), 0 1px 3px 1px rgba(66, 133, 244, 0.15);
+}
+
+button.secondary:hover:not(:disabled) {
+    background-color: rgba(66, 133, 244, 0.04);
+    border-color: rgb(210, 227, 252);
+}
+
 a:hover {
     cursor: pointer;
 }
@@ -742,6 +727,22 @@ td {
     padding-left: 1em;
     padding-right: 1em;
 }
+
+.heading {
+    background-color: #3F3F3F;
+    color: #E3EBF4; 
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    padding: .3em;
+    padding-left: 1.2em;
+    font-size: 25px;
+}
+
+.heading img {
+    margin-right: 1.25em;
+}
+
 
 input[type='number'],
 input[type='password'],
