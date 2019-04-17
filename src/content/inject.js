@@ -153,10 +153,11 @@ const moment = require('moment');
                 clearInterval(intervalTimer)
             })
 
-            window.onbeforeunload(() => {
+            window.onbeforeunload = () => {
                 clearInterval(checkBlockRemove)
                 clearInterval(intervalTimer)
-            })
+                return null
+            }
 
             startMonitor()
         })

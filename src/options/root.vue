@@ -167,6 +167,16 @@ export default {
                     if (result[entry.url]) {
                        let updated = {}
 
+                       if (isNaN(+entry.minutes)) {
+                           entry.minutes = result[entry.url].minutes
+                           return
+                       }
+
+                       if (+entry.minutes < 1) {
+                           entry.minutes = result[entry.url].minutes
+                           return
+                       }
+
                        updated[entry.url] = {
                                               minutes: entry.minutes,
                                               minutes_used: entry.minutes_used,
