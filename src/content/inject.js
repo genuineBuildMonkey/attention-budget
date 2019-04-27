@@ -1,7 +1,11 @@
 import messagePicker from './messages.js'
-const moment = require('moment');
+const moment = require('moment')
 
-((document) => {
+console.log(chrome);
+
+((document, chrome) => {
+    var intervalTimer, checkBlockRemove
+
     let url = window.location.href
     url = url.replace(/^.*:\/\//i, '')
     url = url.split('/')[0]
@@ -39,8 +43,6 @@ const moment = require('moment');
                 })
                 return
             }
-
-            var intervalTimer, checkBlockRemove
 
             const checkAndBlock = () => {
                 if (storedEntry[url].minutes_used >= storedEntry[url].minutes) {
@@ -145,6 +147,8 @@ const moment = require('moment');
             }
 
             window.addEventListener('focus', () => {
+                clearInterval(checkBlockRemove)
+                clearInterval(intervalTimer)
                 startMonitor()
             })
 
@@ -159,9 +163,16 @@ const moment = require('moment');
                 return null
             }
 
+            try {
+                clearInterval(checkBlockRemove)
+                clearInterval(intervalTimer)
+            } catch (e) {
+                console.log(e)
+            }
+
             startMonitor()
         })
     }
 
     monitor()
-})(document)
+})(document, chrome)

@@ -27,7 +27,7 @@ module.exports = {
         default_popup: 'pages/options.html'
     },
     background: {
-        persistent: true,
+        persistent: false,
         page: 'pages/background.html'
     },
     devtools_page: 'pages/devtools.html',
