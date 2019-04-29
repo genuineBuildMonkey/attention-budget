@@ -114,12 +114,17 @@ export default {
         },
         created () {
             this._getData()
+
+            setInterval(() => {
+                this._getData()
+            }, 6000)
         },
         mounted () {
         },
         methods: {
             _getData () {
                 chrome.storage.local.get((result) => {
+                    this.entries = []
                     Object.keys(result).forEach((k, v) => {
                         let times = result[k]
                         this.entries.push({url: k,
