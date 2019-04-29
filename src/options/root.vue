@@ -241,7 +241,7 @@ export default {
                     clearInterval(this.updateTimers[entry.url])
                 }
 
-                Vue.set(this.update_entry_times, entry.url, 60000)
+                Vue.set(this.update_entry_times, entry.url, 30000)
 
                 this.updateTimers[entry.url] = setInterval(() => {
                     this.update_entry_times[entry.url] -= 1000
@@ -260,7 +260,7 @@ export default {
                     clearInterval(this.updateTimers[entry.url])
                 }
 
-                Vue.set(this.update_entry_times, entry.url, 60000)
+                Vue.set(this.update_entry_times, entry.url, 30000)
 
                 this.updateTimers[entry.url] = setInterval(() => {
                     this.update_entry_times[entry.url] -= 1000

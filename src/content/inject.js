@@ -1,10 +1,10 @@
 import messagePicker from './messages.js'
-const moment = require('moment')
-
-console.log(chrome);
+const moment = require('moment');
 
 ((document, chrome) => {
     var intervalTimer, checkBlockRemove
+
+    //console.log(chrome.runtime, 'X')
 
     let url = window.location.href
     url = url.replace(/^.*:\/\//i, '')
@@ -146,16 +146,17 @@ console.log(chrome);
                 }, 6000)
             }
 
-            window.addEventListener('focus', () => {
-                clearInterval(checkBlockRemove)
-                clearInterval(intervalTimer)
-                startMonitor()
-            })
+            //window.addEventListener('focus', () => {
+                //clearInterval(checkBlockRemove)
+                //clearInterval(intervalTimer)
+                //monitor()
+                //startMonitor()
+            //})
 
-            window.addEventListener('blur', () => {
-                clearInterval(checkBlockRemove)
-                clearInterval(intervalTimer)
-            })
+            //window.addEventListener('blur', () => {
+                //clearInterval(checkBlockRemove)
+                //clearInterval(intervalTimer)
+            //})
 
             window.onbeforeunload = () => {
                 clearInterval(checkBlockRemove)
@@ -174,5 +175,18 @@ console.log(chrome);
         })
     }
 
-    monitor()
+    //monitor()
+
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.stop) {
+            try {
+                clearInterval(checkBlockRemove)
+                clearInterval(intervalTimer)
+            } catch (e) {
+                //shrug
+            }
+        } else if (request.start) {
+            monitor()
+        }
+    })
 })(document, chrome)

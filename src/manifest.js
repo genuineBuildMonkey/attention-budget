@@ -15,7 +15,7 @@ module.exports = {
         //'<all_urls>',
         //'*://*/*',
         'activeTab',
-        //'tabs',
+        'tabs',
         'background',
         //'contextMenus',
         //'unlimitedStorage',
