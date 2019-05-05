@@ -56,7 +56,7 @@
                                 <div>{{ Math.round(entry.minutes_used * 100) / 100 }} minutes used of </div>
                             </td>
                             <td>
-                                <input size="1" v-model="entry.minutes" in v-on:change="updateEntry(entry)">
+                                <input size="1" v-model="entry.minutes" v-on:change="noUpdate=true">
                             </td>
                             <td>
                                 <a @click="updateEntry(entry)">update</a>
@@ -97,6 +97,7 @@ export default {
             url_error: null,
             minutes_error: null,
             clear_entries_time: 0,
+            noUpdate: false,
             entriesTimer: null,
             update_entry_times: {},
             updateTimers: {}
@@ -116,7 +117,9 @@ export default {
             this._getData()
 
             setInterval(() => {
-                this._getData()
+                if (!this.noUpdate) {
+                    this._getData()
+                }
             }, 6000)
         },
         mounted () {
@@ -155,7 +158,7 @@ export default {
                     this.minutes_error = 'Invalid Minutes'
                     rslt = false
                 }
-                if (+this.current_entry.minutes <= 0) {
+                if (+this.current_entry.minutes < 0) {
                     this.minutes_error = 'Invalid Minutes'
                     rslt = false
                 }
@@ -177,7 +180,7 @@ export default {
                            return
                        }
 
-                       if (+entry.minutes < 1) {
+                       if (+entry.minutes < 0) {
                            entry.minutes = result[entry.url].minutes
                            return
                        }
@@ -193,6 +196,7 @@ export default {
                            Vue.delete(this.update_entry_times, entry.url)
                        })
                     }
+                    this.noUpdate = false
                 })
             },
             _deleteEntry (entry) {
@@ -241,6 +245,8 @@ export default {
                 if (this.update_entry_times[entry.url]) {
                     return
                 }
+
+                this.noUpdate = true
 
                 if (this.updateTimers[entry.url]) {
                     clearInterval(this.updateTimers[entry.url])

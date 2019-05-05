@@ -1,7 +1,7 @@
 
 module.exports = {
     name: 'Attention Budget',
-    version: '1.0.0',
+    version: '1.0.1',
     description: 'Budget times for website use.',
     author: 'pgenho',
     manifest_version: 2,

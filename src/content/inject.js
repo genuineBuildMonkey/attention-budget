@@ -146,18 +146,6 @@ const moment = require('moment');
                 }, 6000)
             }
 
-            //window.addEventListener('focus', () => {
-                //clearInterval(checkBlockRemove)
-                //clearInterval(intervalTimer)
-                //monitor()
-                //startMonitor()
-            //})
-
-            //window.addEventListener('blur', () => {
-                //clearInterval(checkBlockRemove)
-                //clearInterval(intervalTimer)
-            //})
-
             window.onbeforeunload = () => {
                 clearInterval(checkBlockRemove)
                 clearInterval(intervalTimer)
@@ -174,8 +162,6 @@ const moment = require('moment');
             startMonitor()
         })
     }
-
-    //monitor()
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.stop) {
