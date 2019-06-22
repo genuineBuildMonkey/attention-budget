@@ -6,7 +6,6 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "axios": "^0.17.0",
     "element-ui": "^2.0.1",
     "is-number": "^7.0.0",
     "is-url": "^1.2.4",
